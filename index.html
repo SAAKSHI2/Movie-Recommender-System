@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="search">
+
+        <h1 class="search-head">Movies Recommender</h1>
+
+        <div class="search-input">
+            <input placeholder="enter any movie here..." class="search-input-text" id="searched"/>
+            
+            <!-- below img is for search-icon add here the search button functionality -->
+            <img src="./search.png" alt="search-logo" class="search-input-icon" onclick="Search()"/> 
+        </div>
+        <hr>
+
+        <div class="genres">
+            <h3>Genres :</h3>
+            <button value="Action" onclick="Genres('Action',this)" class="button">Action</button>
+            <button value="Romance" onclick="Genres('Romance',this)" class="button" >Romance</button>
+            <button value="Comedy" onclick="Genres('Comedy',this)" class="button">Comedy</button>
+            <button value="Animation" onclick="Genres('Animation',this)" class="button">Animation</button>
+            <button value="Drama" onclick="Genres('Drama',this)" class="button">Drama</button>
+            <button value="Horror" onclick="Genres('Horror',this)" class="button">Horror</button>
+            <button value="Science Fiction" onclick="Genres('Science Fiction',this)" class="button">Science Fiction</button>
+            <!-- <button value="Family" onclick="Genres('Family',this)" class="button">Family</button> -->
+        </div>
+    </div>
+    <div class="card-container" id="container">
+    <div class="child">
+    <img id="img_1" class="card-img"/>
+    <span id="Movie_1" class="card-title"></span>
+    <span id="overview_1" class="card-desc"></span>
+
+</div >
+<div class="child">
+    <img  id="img_2" class="card-img"/>
+    <span id="Movie_2" class="card-title"></span>
+    <span id="overview_2" class="card-desc"></span>
+</div>
+<div class="child">
+    <img  id="img_3" class="card-img"/>
+    <span id="Movie_3" class="card-title"></span>
+    <span id="overview_3" class="card-desc"></span>
+</div>
+<div class="child">
+    <img  id="img_4" class="card-img"/>
+    <span id="Movie_4" class="card-title"></span>  
+    <span id="overview_4" class="card-desc"></span>
+</div>
+<div class="child">
+     <img id="img_5" class="card-img"/>
+    <span id="Movie_5" class="card-title"></span> 
+    <span id="overview_5" class="card-desc"></span>
+</div>
+<div class="child">
+    <img id="img_6" class="card-img"/>
+    <span id="Movie_6" class="card-title"></span> 
+    <span id="overview_6" class="card-desc"></span>
+</div>
+<div class="child">
+       <img id="img_7" class="card-img"/>
+    <span id="Movie_7" class="card-title"></span>
+    <span id="overview_7" class="card-desc"></span>
+</div>
+<div class="child">
+      <img id="img_8" class="card-img"/>
+    <span id="Movie_8" class="card-title"></span> 
+    <span id="overview_8" class="card-desc"></span>
+</div> 
+<div class="child">
+      <img id="img_9" class="card-img"/>
+    <span id="Movie_9" class="card-title"></span>  
+    <span id="overview_9" class="card-desc"></span>
+</div>
+<div class="child">
+      <img id="img_10" class="card-img"/>
+    <span id="Movie_10" class="card-title"></span>
+    <span id="overview_10" class="card-desc"></span>
+</div>
+</div>
+
+
+
+    <script>
+
+        let y = null,
+            x = null,img_data,overview_desc;
+        async function Search() {
+            let data;
+            let id_;
+            let response = await fetch('vectors.json')
+            let users = await response.json()
+            x = JSON.parse(users);
+
+            let response1 = await fetch('movie_title_and_id.json')
+            let users2 = await response1.json()
+            y = JSON.parse(JSON.stringify(users2));
+
+            idd = document.getElementById("searched").value;
+           
+          
+            var movie_id=[];
+            var title=[];
+        
+            for (var i = 0; i < 4800; i++) {
+                //  console.log(y[i]['title']);
+                var xx=y[i]['title'].toString();
+                if (xx.toLowerCase()== (idd.toLowerCase())) {
+                    id_ = parseInt(i);
+
+                    break;
+                }
+            }
+
+            if(id_==null)
+            {
+                alert("Movie not present please enter another movie!!");
+            }
+
+            movie_id.push(y[id_]['movie_id']);
+            title.push(y[id_]['title']);
+
+            for (var i = 0; i < 9; i++) {
+                movie_id.push(y[parseInt(x[id_][i][0])]['movie_id']);
+                title.push(y[parseInt(x[id_][i][0])]['title']);
+            }
+
+                document.getElementById("container").style.display='inherit';
+            for (var i = 0; i <= 9; i++) {
+                var url="img_"+(i+1).toString(); 
+                data=await fetch(`https://api.themoviedb.org/3/movie/${movie_id[i]}?api_key=2adfe5ea7f9a7828330b3a4f2dd00cb4&language=en-US`);
+                    img_data=data.json();
+                    img_data.then(i=>{
+                document.getElementById(url).style.display="initial";
+                document.getElementById(url).src=`https://image.tmdb.org/t/p/w500/${i.poster_path?.toString()}`;
+            });
+                     var ti = "Movie_" + (i + 1).toString();
+                  
+                     document.getElementById(ti).innerHTML = title[i];
+                  
+                    
+                     var x=200-title[i].length;
+                      var desc="overview_"+(i+1).toString();
+                    
+                    overview_desc=await fetch(`https://api.themoviedb.org/3/movie/${movie_id[i]}?api_key=2adfe5ea7f9a7828330b3a4f2dd00cb4&language=en-US`);
+                    overview=overview_desc.json();
+                   overview.then(i=>{
+              
+                
+                document.getElementById(desc).innerHTML=i.overview?.toString().slice(0,x)+"...";
+               
+              
+            });
+
+           }
+
+        }
+
+        let yy=null;
+        let option="";
+        async function Genres(op,object){
+
+             option=op;
+            console.log(option);
+            let response = await fetch('file_genres.json')
+            let users = await response.json()
+            yy = JSON.parse(JSON.stringify(users));
+
+           
+             var movie_id=[]
+             var title=[]
+             var i=0;
+            while(movie_id.length<10)
+            {
+                if(yy[i]['genres'].includes(option))
+                {
+                movie_id.push(yy[i]['movie_id']);
+                title.push(yy[i]['title']);
+                }
+                i++;
+            }
+
+document.getElementById("container").style.display='inherit';
+ for (var i = 0; i <= 9; i++) {
+                var url="img_"+(i+1).toString(); 
+                data=await fetch(`https://api.themoviedb.org/3/movie/${movie_id[i]}?api_key=2adfe5ea7f9a7828330b3a4f2dd00cb4&language=en-US`);
+                    img_data=data.json();
+                    img_data.then(i=>{
+               
+                document.getElementById(url).style.display="initial";
+                document.getElementById(url).src=`https://image.tmdb.org/t/p/w500/${i.poster_path?.toString()}`;
+            });
+                     var ti = "Movie_" + (i + 1).toString();
+                   
+                     document.getElementById(ti).innerHTML = title[i];
+                  
+                    
+                     var x=200-title[i].length;
+                      var desc="overview_"+(i+1).toString();
+                    
+                    overview_desc=await fetch(`https://api.themoviedb.org/3/movie/${movie_id[i]}?api_key=2adfe5ea7f9a7828330b3a4f2dd00cb4&language=en-US`);
+                    overview=overview_desc.json();
+                   overview.then(i=>{
+              
+                
+                document.getElementById(desc).innerHTML=i.overview?.toString().slice(0,x)+"...";
+               
+            
+            });
+
+           }
+
+
+        }
+        // Genres();
+
+    </script>
+
+</body>
+
+</html>
